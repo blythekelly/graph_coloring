@@ -1,0 +1,109 @@
+from pprint import pprint
+
+#Implement the backtracking technique for graph m-coloring
+
+class Graph:
+    def __init__(self,n):
+        self.__numVertices = n
+        self.matrix = [ [ 0 for i in range(n+1) ] for j in range(n+1) ] 
+
+    def getNumVert(self):
+        return self.__numVertices
+
+    def __repr__(self):
+        return str(self.matrix)
+
+    def __str__(self):
+        return '\n'.join([','.join(str(c) for c in row) for row in self.matrix])
+
+
+vcolor = []
+results = []
+"""
+The main function - its job is primarily to reinitialize vcolor according to the
+(number of vertices of the) graph G, and then call our familiar recursive function.
+
+Inputs: (Graph) G: The graph to be colored
+        (integer) m: The number of colors
+        (integer) i: The index of the current vertex being processed
+
+Example function call: m_coloring_main(G,3), meaning "please 3-color the graph G".
+"""
+def m_coloring_main(G,m):
+    global vcolor, results #Clarifies that whenever we use these variable names, we are talking about the global ones defined earlier.
+    vcolor = [None]*(G.getNumVert()+1)
+    results = []
+    m_coloring(G,m,0) #pass initial i-value i=0
+
+"""
+Inputs: (Graph) G: The graph to be colored
+        (integer) m: The number of colors
+        (integer) i: The index of the current vertex being processed
+
+Outputs: (void): No return - the function adds new colorings to the global results variable as it
+finds them and terminates when the recursion ends.
+"""
+def m_coloring(G, m, i):
+    global vcolor
+    if(promising(G, i)):
+        if(i==G.getNumVert()):
+            results.append(list(vcolor[1:]))
+        else:
+            color=0
+            while color<m:
+                vcolor[i+1]=color
+                m_coloring(G, m, i+1)
+                color+=1
+
+
+def get_results():
+    global results
+    return results
+
+
+"""
+Checks is a given coloring - defined up to the point i - is promising.
+
+Inputs: (Graph) G: The graph to be colored
+        (integer) i: The index of the current vertex being processed
+
+Outputs: (Boolean) switch: Is the coloring given in vcolor[] consistent up to i?
+"""
+def promising(G,i):
+    switch = True
+    j = 1
+    global vcolor
+
+    while(j<i and switch):
+        if(G.matrix[i][j]==1 and vcolor[i]==vcolor[j]):
+            switch=False
+        j+=1
+
+    return switch
+
+
+# #Sample tests 
+
+G = Graph(3) 
+G.matrix = [[0,0,0,0],
+             [0,0,1,1],
+            [0,1,0,1],
+         [0,1,1,0]]
+
+print("G output:\n")
+m_coloring_main(G,3)
+pprint(results) #Pretty print
+
+
+G2 = Graph(4)
+G2.matrix = [ [0,0,0,0,0],
+         [0,0, 1, 1, 1],
+         [0,1, 0, 1, 0],
+        [0,1, 1, 0, 1],
+         [0,1, 0, 1, 0],
+     ]
+
+print("\n G2 output:\n")
+m_coloring_main(G2,3)
+pprint(results)
+
